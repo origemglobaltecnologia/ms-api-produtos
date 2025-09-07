@@ -17,3 +17,7 @@
 .DS_Store
 *.log
 
+# Banco H2
+*.mv.db
+*.trace.db
+*.log.db
