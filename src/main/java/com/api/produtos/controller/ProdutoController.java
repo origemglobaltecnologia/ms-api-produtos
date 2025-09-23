@@ -8,20 +8,20 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/produtos")
-@CrossOrigin(origins = "*") // Permite chamadas externas (ex: Vue.js)
+@CrossOrigin(origins = "*")
 public class ProdutoController {
 
     private final ProdutoRepository produtoRepository;
 
-    // Injeção de dependência via construtor
     public ProdutoController(ProdutoRepository produtoRepository) {
         this.produtoRepository = produtoRepository;
     }
 
-    // CREATE - Cadastrar produto
+    // CREATE
     @PostMapping
     public ResponseEntity<Produto> criarProduto(@RequestBody Produto produto) {
         Produto novo = produtoRepository.save(produto);
@@ -36,15 +36,15 @@ public class ProdutoController {
 
     // READ - Buscar por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Produto> buscarProduto(@PathVariable Long id) {
+    public ResponseEntity<Produto> buscarProduto(@PathVariable UUID id) {
         Optional<Produto> produto = produtoRepository.findById(id);
         return produto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // UPDATE - Atualizar produto
+    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> atualizarProduto(@PathVariable Long id, @RequestBody Produto produtoAtualizado) {
+    public ResponseEntity<Produto> atualizarProduto(@PathVariable UUID id, @RequestBody Produto produtoAtualizado) {
         return produtoRepository.findById(id).map(produto -> {
             produto.setNome(produtoAtualizado.getNome());
             produto.setDescricao(produtoAtualizado.getDescricao());
@@ -55,12 +55,12 @@ public class ProdutoController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // DELETE - Remover produto
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
+    public ResponseEntity<Void> excluirProduto(@PathVariable UUID id) {
         if (produtoRepository.existsById(id)) {
             produtoRepository.deleteById(id);
-            return ResponseEntity.noContent().build(); // 204
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
