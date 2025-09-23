@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProdutoController.class)
-class ProdutoControllerTest { // ✅ Corrigido aqui
+class ProdutoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,12 +45,11 @@ class ProdutoControllerTest { // ✅ Corrigido aqui
     @Test
     void testCriarProdutoComNomeNull() throws Exception {
         Produto p = new Produto(null, "Desc", 10.0, 2);
-        when(produtoRepository.save(any(Produto.class))).thenThrow(new RuntimeException("Nome não pode ser null"));
 
         mockMvc.perform(post("/api/produtos")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(p)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest()); // Validação de @NotNull
     }
 
     @Test
