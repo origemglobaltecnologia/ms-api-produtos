@@ -49,7 +49,7 @@ class ProdutoControllerTest {
         mockMvc.perform(post("/api/produtos")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(p)))
-                .andExpect(status().isBadRequest()); // Validação de @NotNull
+                .andExpect(status().isBadRequest());
     }
 
     @Test

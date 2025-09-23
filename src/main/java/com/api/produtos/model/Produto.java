@@ -1,6 +1,7 @@
 package com.api.produtos.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -12,15 +13,19 @@ public class Produto {
     @GeneratedValue
     private UUID id;
 
+    @NotNull(message = "Nome não pode ser null")
     @Column(nullable = false)
     private String nome;
 
+    @NotNull(message = "Descrição não pode ser null")
     @Column(nullable = false)
     private String descricao;
 
+    @NotNull(message = "Preço não pode ser null")
     @Column(nullable = false)
     private Double preco;
 
+    @NotNull(message = "Quantidade não pode ser null")
     @Column(nullable = false)
     private Integer quantidade;
 

@@ -2,17 +2,19 @@ package com.api.produtos.controller;
 
 import com.api.produtos.model.Produto;
 import com.api.produtos.repository.ProdutoRepository;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/produtos")
-@CrossOrigin(origins = "*")
+@Validated
 public class ProdutoController {
 
     private final ProdutoRepository produtoRepository;
@@ -21,47 +23,43 @@ public class ProdutoController {
         this.produtoRepository = produtoRepository;
     }
 
-    // CREATE
     @PostMapping
-    public ResponseEntity<Produto> criarProduto(@RequestBody Produto produto) {
+    public ResponseEntity<Produto> criarProduto(@Valid @RequestBody Produto produto) {
         Produto novo = produtoRepository.save(produto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
-    // READ - Listar todos
     @GetMapping
     public List<Produto> listarProdutos() {
         return produtoRepository.findAll();
     }
 
-    // READ - Buscar por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Produto> buscarProduto(@PathVariable UUID id) {
+    public ResponseEntity<Produto> buscarProdutoPorId(@PathVariable UUID id) {
         Optional<Produto> produto = produtoRepository.findById(id);
-        return produto.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return produto.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> atualizarProduto(@PathVariable UUID id, @RequestBody Produto produtoAtualizado) {
-        return produtoRepository.findById(id).map(produto -> {
-            produto.setNome(produtoAtualizado.getNome());
-            produto.setDescricao(produtoAtualizado.getDescricao());
-            produto.setPreco(produtoAtualizado.getPreco());
-            produto.setQuantidade(produtoAtualizado.getQuantidade());
-            Produto atualizado = produtoRepository.save(produto);
-            return ResponseEntity.ok(atualizado);
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<Produto> atualizarProduto(@PathVariable UUID id, @Valid @RequestBody Produto produto) {
+        return produtoRepository.findById(id)
+                .map(p -> {
+                    p.setNome(produto.getNome());
+                    p.setDescricao(produto.getDescricao());
+                    p.setPreco(produto.getPreco());
+                    p.setQuantidade(produto.getQuantidade());
+                    Produto atualizado = produtoRepository.save(p);
+                    return ResponseEntity.ok(atualizado);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirProduto(@PathVariable UUID id) {
-        if (produtoRepository.existsById(id)) {
-            produtoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if (!produtoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        produtoRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
